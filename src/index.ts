@@ -109,10 +109,12 @@ async function run()
             await exec.exec('rustup', ['target', 'add', 'aarch64-apple-darwin']);
         }
 
+        console.log("BUILD");
         core.info('Building Rust code...');
         const target = getTarget();
         await exec.exec('cargo', ['build', '--release', '--target', target]);
 
+        console.log("TOML");
         core.info('Retrieving TOML informations...');
         const cargoToml: any = await getProjectToml();
 
@@ -130,7 +132,6 @@ async function run()
             process.exit();
         }
 
-        core.info('Creating release...');
         const tagName: string | undefined = github.context.ref.split("/").pop();
         if (tagName === undefined)
         {
@@ -140,6 +141,8 @@ async function run()
         core.info(`Tag name: ${tagName}`);
         core.info(`Package version: ${cargoToml.package.version}`);
 
+        console.log("RELEASE");
+        core.info('Creating release...');
         const uploadUrl = await createRelease(
             tagName,
             github.context.sha,
@@ -153,6 +156,7 @@ async function run()
         core.info(`Package name: ${cargoToml.package.name}`);
         core.info(`Package version: ${cargoToml.package.version}`);
 
+        console.log("UPLOAD");
         await uploadAsset(
             uploadUrl,
             process.platform === 'win32' ?
