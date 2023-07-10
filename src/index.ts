@@ -104,13 +104,16 @@ async function run()
 {
     try
     {
-        const target = getTarget();
         if (process.platform === 'darwin')
         {
             await exec.exec('rustup', ['target', 'add', 'aarch64-apple-darwin']);
         }
+
+        core.info('Building Rust code...');
+        const target = getTarget();
         await exec.exec('cargo', ['build', '--release', '--target', target]);
 
+        core.info('Retrieving TOML informations...');
         const cargoToml: any = await getProjectToml();
 
         const publishRelease: boolean = core.getInput('publish-release') === 'true';
