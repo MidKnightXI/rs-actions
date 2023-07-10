@@ -120,8 +120,14 @@ async function run()
             process.exit();
         }
 
+        const tagName: string | undefined = github.context.ref.split("/").pop();
+        if (tagName === undefined)
+        {
+            throw new Error("Tag name is undefined.");
+        }
+
         const uploadUrl = await createRelease(
-            github.context.ref,
+            tagName,
             github.context.sha,
             `v${cargoToml.package.version}`,
             'Description of the release.',
