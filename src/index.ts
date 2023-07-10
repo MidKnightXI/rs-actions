@@ -75,7 +75,7 @@ function getTarget(): string
     }
 }
 
-async function getProjectToml(): Promise<string>
+async function getProjectToml()
 {
     let cargoTomlPath: string = core.getInput('cargo-toml-path');
 
