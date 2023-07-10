@@ -77,11 +77,18 @@ function getTarget(): string
 
 async function getProjectToml(): Promise<string>
 {
-    const cargoTomlPath: string = core.getInput('cargo-toml-path');
+    let cargoTomlPath: string = core.getInput('cargo-toml-path');
+
+    if (cargoTomlPath === "")
+    {
+        cargoTomlPath = "./Cargo.toml";
+    }
+    cargoTomlPath = normalize(cargoTomlPath)
+
     try
     {
         const cargoTomlContents: string = await fs.readFile(
-            cargoTomlPath !== '' ? cargoTomlPath : 'Cargo.toml',
+            cargoTomlPath,
             { encoding: 'utf8' });
         return toml.parse(cargoTomlContents);;
     }
