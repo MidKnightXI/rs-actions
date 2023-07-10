@@ -37,7 +37,7 @@ async function uploadAsset(uploadUrl: string, assetPath: string, assetName: stri
         method: 'POST',
         url: uploadUrl,
         headers,
-        data: await fs.readFile(assetPath),
+        data: fs.readFile(assetPath),
     });
 
     if (uploadAssetResponse.status !== 201)
@@ -120,11 +120,15 @@ async function run()
             process.exit();
         }
 
+        core.info('Creating release...');
         const tagName: string | undefined = github.context.ref.split("/").pop();
         if (tagName === undefined)
         {
             throw new Error("Tag name is undefined.");
         }
+
+        core.info(`Tag name: ${tagName}`);
+        core.info(`Package version: ${cargoToml.package.version}`);
 
         const uploadUrl = await createRelease(
             tagName,
@@ -133,6 +137,11 @@ async function run()
             'Description of the release.',
             githubToken
         );
+        core.info('Release created.');
+
+        core.info('Uploading asset...');
+        core.info(`Package name: ${cargoToml.package.name}`);
+        core.info(`Package version: ${cargoToml.package.version}`);
 
         await uploadAsset(
             uploadUrl,
@@ -142,6 +151,7 @@ async function run()
             cargoToml.package.name,
             githubToken
         );
+        core.info('Asset uploaded.');
 
         core.setOutput('output', 'Successfully compiled and drafted your Rust code.');
 
@@ -152,5 +162,6 @@ async function run()
             core.setFailed(error.message);
     }
 }
+
 
 run();
